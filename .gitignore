@@ -1,0 +1,13 @@
+
+# /
+/*.ipr
+/*.iws
+/*.iml
+/target
+/atlassian-*.xml
+/*.log
+/.classpath
+/.idea
+/build
+./.DS_Store
+
