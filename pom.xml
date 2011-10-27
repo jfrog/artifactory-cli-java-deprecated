@@ -28,20 +28,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.artifactory</groupId>
-            <artifactId>artifactory-config</artifactId>
-            <version>2.3.x-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.ivy</groupId>
-                    <artifactId>ivy</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <version>3.1</version>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
