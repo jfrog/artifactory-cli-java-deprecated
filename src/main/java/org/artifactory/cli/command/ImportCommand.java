@@ -18,14 +18,12 @@
 
 package org.artifactory.cli.command;
 
-import org.artifactory.api.config.ImportSettings;
 import org.artifactory.cli.common.Command;
 import org.artifactory.cli.common.UrlBasedCommand;
+import org.artifactory.cli.main.CliLog;
 import org.artifactory.cli.main.CliOption;
 import org.artifactory.cli.main.CommandDefinition;
 import org.artifactory.cli.rest.RestClient;
-import org.artifactory.log.LoggerFactory;
-import org.slf4j.Logger;
 
 import java.io.File;
 
@@ -35,7 +33,6 @@ import java.io.File;
  * @author Noam Tenne
  */
 public class ImportCommand extends UrlBasedCommand implements Command {
-    private static final Logger log = LoggerFactory.getLogger(ImportCommand.class);
 
     /**
      * Default constructor
@@ -60,17 +57,18 @@ public class ImportCommand extends UrlBasedCommand implements Command {
         if (importFrom.exists()) {
             importFrom = new File(importFrom.getCanonicalPath());
         }
-        ImportSettings settings = new ImportSettings(importFrom);
-        settings.setIncludeMetadata(!CliOption.noMetadata.isSet());
-        settings.setVerbose(CliOption.verbose.isSet());
-        settings.setFailFast(CliOption.failOnError.isSet());
-        settings.setFailIfEmpty(CliOption.failIfEmpty.isSet());
+        StringBuilder jsonPayload = new StringBuilder("{");
+        jsonPayload.append("\"importPath\"=\"").append(importFrom.getPath()).append("\"\n");
+        jsonPayload.append("\"includeMetadata\"=").append(!CliOption.noMetadata.isSet()).append("\n");
+        jsonPayload.append("\"verbose\"=").append(CliOption.verbose.isSet()).append("\n");
+        jsonPayload.append("\"failOnError\"=").append(CliOption.failOnError.isSet()).append("\n");
+        jsonPayload.append("\"failIfEmpty\"=").append(CliOption.failIfEmpty.isSet()).append("\n");
+        jsonPayload.append("}");
 
-        log.info("Sending import request to server from path: {}", importFrom.getPath());
+        CliLog.info("Sending import request to server from path: " + importFrom.getPath());
 
-        // TODO: The repo list
-        //settings.setReposToImport();
-        post(systemUri, settings, null);
+        post(systemUri, jsonPayload.toString().getBytes("UTF-8"),
+                "application/vnd.org.jfrog.artifactory.system.ImportSettings+json", 200, null, true);
         return 0;
     }
 

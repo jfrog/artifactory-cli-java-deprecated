@@ -18,14 +18,12 @@
 
 package org.artifactory.cli.command;
 
-import org.artifactory.api.config.ExportSettings;
 import org.artifactory.cli.common.Command;
 import org.artifactory.cli.common.UrlBasedCommand;
+import org.artifactory.cli.main.CliLog;
 import org.artifactory.cli.main.CliOption;
 import org.artifactory.cli.main.CommandDefinition;
 import org.artifactory.cli.rest.RestClient;
-import org.artifactory.log.LoggerFactory;
-import org.slf4j.Logger;
 
 import java.io.File;
 
@@ -35,7 +33,6 @@ import java.io.File;
  * @author Noam Tenne
  */
 public class ExportCommand extends UrlBasedCommand implements Command {
-    private static final Logger log = LoggerFactory.getLogger(ExportCommand.class);
 
     /**
      * Default constructor
@@ -50,7 +47,8 @@ public class ExportCommand extends UrlBasedCommand implements Command {
                 CliOption.failIfEmpty,
                 CliOption.bypassFiltering,
                 CliOption.createArchive,
-                CliOption.incremental
+                CliOption.incremental,
+                CliOption.excludeContent
         );
     }
 
@@ -65,37 +63,24 @@ public class ExportCommand extends UrlBasedCommand implements Command {
         if (exportTo.exists()) {
             exportTo = new File(exportTo.getCanonicalPath());
         }
-        ExportSettings settings = new ExportSettings(exportTo);
-        if (CliOption.noMetadata.isSet()) {
-            settings.setIncludeMetadata(false);
-        }
-        if (CliOption.createArchive.isSet()) {
-            settings.setCreateArchive(true);
-        }
-        if (CliOption.bypassFiltering.isSet()) {
-            settings.setIgnoreRepositoryFilteringRulesOn(true);
-        }
-        if (CliOption.verbose.isSet()) {
-            settings.setVerbose(true);
-        }
-        if (CliOption.failOnError.isSet()) {
-            settings.setFailFast(true);
-        }
-        if (CliOption.failIfEmpty.isSet()) {
-            settings.setFailIfEmpty(true);
-        }
-        if (CliOption.m2.isSet()) {
-            settings.setM2Compatible(true);
-        }
-        if (CliOption.incremental.isSet()) {
-            settings.setIncremental(true);
-        }
+        StringBuilder jsonPayload = new StringBuilder("{");
+        jsonPayload.append("\"exportPath\"=\"").append(exportTo.getPath()).append("\"\n");
+        jsonPayload.append("\"includeMetadata\"=").append(!CliOption.noMetadata.isSet()).append("\n");
+        jsonPayload.append("\"createArchive\"=").append(CliOption.createArchive.isSet()).append("\n");
+        jsonPayload.append("\"bypassFiltering\"=").append(CliOption.bypassFiltering.isSet()).append("\n");
+        jsonPayload.append("\"verbose\"=").append(CliOption.verbose.isSet()).append("\n");
+        jsonPayload.append("\"failOnError\"=").append(CliOption.failOnError.isSet()).append("\n");
+        jsonPayload.append("\"failIfEmpty\"=").append(CliOption.failIfEmpty.isSet()).append("\n");
+        jsonPayload.append("\"m2\"=").append(CliOption.m2.isSet()).append("\n");
+        jsonPayload.append("\"incremental\"=").append(CliOption.incremental.isSet()).append("\n");
+        jsonPayload.append("\"excludeContent\"=").append(CliOption.excludeContent.isSet()).append("\n");
+        jsonPayload.append("}");
 
-        log.info("Sending export request to server path: {}", exportTo.getPath());
+        CliLog.info("Sending export request to server path: " + exportTo.getPath());
 
         // TODO: The repo list
-        //settings.setReposToExport();
-        post(systemUri, settings, null);
+        post(systemUri, jsonPayload.toString().getBytes("UTF-8"),
+                "application/vnd.org.jfrog.artifactory.system.ExportSettings+json", 200, null, true);
         return 0;
     }
 

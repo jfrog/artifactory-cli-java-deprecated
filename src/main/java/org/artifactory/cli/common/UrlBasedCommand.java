@@ -21,11 +21,9 @@ package org.artifactory.cli.common;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.lang.ArrayUtils;
-import org.artifactory.api.rest.constant.RestConstants;
 import org.artifactory.cli.main.CliOption;
 import org.artifactory.cli.main.CommandDefinition;
 import org.artifactory.cli.rest.RestClient;
-import org.artifactory.util.RemoteCommandException;
 
 /**
  * Extends the BaseCommand class to act as a super class for commands that need URL handling (import, export, etc')
@@ -107,44 +105,20 @@ public abstract class UrlBasedCommand extends BaseCommand {
             } else {
                 url.append(SERVER_HOST);
             }
-            url.append("artifactory/" + RestConstants.PATH_API + "/");
+            url.append("artifactory/api/");
         }
         return url.toString();
     }
 
-    @SuppressWarnings({"unchecked"})
-    protected static <I, O> O post(String uri, I inObj, Class<O> outObjClass) throws Exception {
-        int timeOut = getTimeOut();
-        Credentials credentials = getCredentials();
-        O o = RestClient.post(uri, inObj, outObjClass, timeOut, credentials);
-        return o;
-    }
-
-    @SuppressWarnings({"unchecked"})
-    protected static <T> T get(String uri, Class<T> xstreamObjClass) throws Exception {
-        int timeOut = getTimeOut();
-        Credentials credentials = getCredentials();
-        T t = RestClient.get(uri, xstreamObjClass, timeOut, credentials);
-        return t;
-    }
-
     protected static byte[] get(String uri, int expectedStatus, String expectedMediaType, boolean printStream)
             throws Exception {
-        int timeOut = getTimeOut();
-        Credentials credentials = getCredentials();
-        byte[] analyzedResponse =
-                RestClient.get(uri, expectedStatus, expectedMediaType, printStream, timeOut, credentials);
-        return analyzedResponse;
+        return RestClient.get(uri, expectedStatus, expectedMediaType, printStream, getTimeOut(), getCredentials());
     }
 
     protected static byte[] post(String uri, final byte[] data, final String inputDataType, int expectedStatus,
-            String expectedMediaType, boolean printStream) throws Exception {
-        int timeOut = getTimeOut();
-        Credentials credentials = getCredentials();
-        byte[] analyzedResponse = RestClient.post(uri, data, inputDataType, expectedStatus, expectedMediaType,
-                printStream, timeOut, credentials);
-
-        return analyzedResponse;
+                                 String expectedMediaType, boolean printStream) throws Exception {
+        return RestClient.post(uri, data, inputDataType, expectedStatus, expectedMediaType,
+                printStream, getTimeOut(), getCredentials());
     }
 
     protected static int getTimeOut() {

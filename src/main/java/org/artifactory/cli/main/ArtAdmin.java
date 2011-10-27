@@ -22,26 +22,19 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.artifactory.cli.command.HelpCommand;
 import org.artifactory.cli.common.Command;
+import org.artifactory.cli.common.RemoteCommandException;
 import org.artifactory.cli.common.SecurePrompt;
 import org.artifactory.cli.common.UrlBasedCommand;
-import org.artifactory.log.LoggerFactory;
-import org.artifactory.util.RemoteCommandException;
-import org.slf4j.Logger;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 
 /**
  * User: freds
  */
 public class ArtAdmin {
-    private static final Logger log = LoggerFactory.getLogger(ArtAdmin.class);
     public static boolean DO_SYSTEM_EXIT = true;
     private static final int ERROR_STATUS = 15;
 
     @SuppressWarnings({"OverlyComplexMethod"})
     public static void main(String[] args) {
-        // install the java.utils.logging to slf4j bridge
-        SLF4JBridgeHandler.install();
-
         if (args.length > 0) {
             String commandName = args[0];
             if (!StringUtils.isEmpty(commandName)) {
@@ -91,12 +84,12 @@ public class ArtAdmin {
                 int returnCode = command.execute();
                 long executionTime = System.currentTimeMillis() - start;
                 String executionTimeString = DurationFormatUtils.formatDuration(executionTime, "s.SS");
-                log.info("{} finished in {} seconds.", commandName, executionTimeString);
+                CliLog.info(commandName + " finished in " + executionTimeString + " seconds.");
                 if (DO_SYSTEM_EXIT) {
                     System.exit(returnCode);
                 }
             } catch (RemoteCommandException rme) {
-                log.error(rme.getMessage());
+                CliLog.error(rme.getMessage());
             } catch (Exception e) {
                 e.printStackTrace();
                 if (DO_SYSTEM_EXIT) {

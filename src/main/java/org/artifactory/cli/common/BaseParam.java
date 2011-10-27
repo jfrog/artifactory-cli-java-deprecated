@@ -18,8 +18,6 @@
 
 package org.artifactory.cli.common;
 
-import org.artifactory.util.PathUtils;
-
 import java.io.Serializable;
 
 /**
@@ -124,7 +122,7 @@ public class BaseParam implements Param, Serializable {
      * @return boolean Is value set
      */
     public boolean isSet() {
-        return PathUtils.hasText(value);
+        return value != null && value.trim().length() > 0;
     }
 
     /**

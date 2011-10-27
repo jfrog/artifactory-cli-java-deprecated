@@ -18,15 +18,11 @@
 
 package org.artifactory.cli.command;
 
-import org.artifactory.api.common.MultiStatusHolder;
 import org.artifactory.cli.common.Command;
 import org.artifactory.cli.common.UrlBasedCommand;
+import org.artifactory.cli.main.CliLog;
 import org.artifactory.cli.main.CommandDefinition;
 import org.artifactory.cli.rest.RestClient;
-import org.artifactory.log.LoggerFactory;
-import org.slf4j.Logger;
-
-import java.io.IOException;
 
 /**
  * The "Compress" command class. If artifactory is using a Derby database, this command will call the compress table
@@ -38,8 +34,6 @@ import java.io.IOException;
  * @author Yoav Landman
  */
 public class CompressCommand extends UrlBasedCommand implements Command {
-    private static final Logger log = LoggerFactory.getLogger(CompressCommand.class);
-
 
     /**
      * Constructor
@@ -65,13 +59,13 @@ public class CompressCommand extends UrlBasedCommand implements Command {
     /**
      * Calls the compress command on the workspace and datastore tables
      *
-     * @throws IOException
-     * @throws NoSuchMethodException
+     * @return always 0
+     * @throws Exception For any error
      */
     private int compress() throws Exception {
         String compressUri = getUrl() + RestClient.COMPRESS_URL;
-        log.info("Sending compress command to {} ...", compressUri);
-        MultiStatusHolder statusHolder = post(compressUri, null, MultiStatusHolder.class);
-        return reportMultiStatusResult(statusHolder);
+        CliLog.info("Sending compress command to " + compressUri + " ...");
+        post(compressUri, null, null, 200, null, true);
+        return 0;
     }
 }

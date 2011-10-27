@@ -19,14 +19,9 @@
 package org.artifactory.cli.test;
 
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
 import org.apache.commons.io.FileUtils;
-import org.artifactory.api.maven.MavenNaming;
 import org.artifactory.cli.main.ArtAdmin;
 import org.artifactory.cli.main.CliOption;
-import org.artifactory.common.ArtifactoryHome;
-import org.artifactory.log.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -58,9 +53,6 @@ public class TestCli {
 
     @BeforeClass
     public void setLevel() {
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        //lc.getLogger(ConfigXmlConversionTest.class).setLevel(Level.DEBUG);
-        lc.getLogger("org.artifactory.update").setLevel(Level.DEBUG);
         ArtAdmin.DO_SYSTEM_EXIT = false;
     }
 
@@ -124,8 +116,8 @@ public class TestCli {
         }
         Assert.assertNotNull(importFrom);
         File secFile = new File(importFrom, "security.xml");
-        File confFile = new File(importFrom, ArtifactoryHome.ARTIFACTORY_CONFIG_FILE);
-        File propFile = new File(importFrom, ArtifactoryHome.ARTIFACTORY_PROPERTIES_FILE);
+        File confFile = new File(importFrom, "artifactory.config.xml");
+        File propFile = new File(importFrom, "artifactory.properties");
         File repositories = new File(importFrom, "repositories");
         assertTrue(secFile.exists());
         assertTrue(confFile.exists());
@@ -137,7 +129,7 @@ public class TestCli {
         boolean hasM2MetadataXml = false;
         for (File file : mdFiles) {
             assertTrue(file.length() != 0, "File " + file + " is empty!");
-            if (MavenNaming.isMavenMetadataFileName(file.getName())) {
+            if ("maven-metadata.xml".equals(file.getName())) {
                 hasMetadataXml = true;
                 String path = file.getAbsolutePath().substring(repositories.getAbsolutePath().length());
                 MdToFind toFind = new MdToFind();

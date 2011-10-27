@@ -18,14 +18,8 @@
 
 package org.artifactory.cli.common;
 
-import org.artifactory.api.common.MultiStatusHolder;
 import org.artifactory.cli.main.CliOption;
 import org.artifactory.cli.main.CommandDefinition;
-import org.artifactory.common.StatusEntry;
-import org.artifactory.log.LoggerFactory;
-import org.slf4j.Logger;
-
-import java.util.List;
 
 /**
  * The main base class for CLI commands
@@ -33,7 +27,6 @@ import java.util.List;
  * @author Noam Tenne
  */
 public abstract class BaseCommand implements Command {
-    private static final Logger log = LoggerFactory.getLogger(BaseCommand.class);
     /**
      * The Command definition of the command
      */
@@ -110,26 +103,6 @@ public abstract class BaseCommand implements Command {
                 sb.append("\n");
             }
         }
-    }
-
-    protected int reportMultiStatusResult(MultiStatusHolder statusHolder) {
-        List<StatusEntry> errors = statusHolder.getErrors();
-        if (errors.size() > 0) {
-            log.info("The command was NOT successfully completed. The following errors were returned: ");
-            for (StatusEntry error : errors) {
-                log.error("- " + error.getMessage());
-            }
-        } else {
-            log.info("The command was successfully completed!");
-        }
-        List<StatusEntry> warnings = statusHolder.getWarnings();
-        if (warnings.size() > 0) {
-            log.info("The command returned the following warnings: ");
-            for (StatusEntry warning : warnings) {
-                log.error("- " + warning.getMessage());
-            }
-        }
-        return statusHolder.getLastError() == null ? 0 : 1;
     }
 
     /**

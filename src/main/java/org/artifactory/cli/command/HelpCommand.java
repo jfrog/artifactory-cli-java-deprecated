@@ -20,8 +20,6 @@ package org.artifactory.cli.command;
 
 import org.artifactory.cli.common.BaseCommand;
 import org.artifactory.cli.main.CommandDefinition;
-import org.artifactory.common.ArtifactoryHome;
-import org.artifactory.version.CompoundVersionDetails;
 
 /**
  * The "Help" command class
@@ -75,14 +73,7 @@ public class HelpCommand extends BaseCommand {
         StringBuilder usage = new StringBuilder();
         usage.append("Artifactory Command Line Interface");
 
-        try {
-            CompoundVersionDetails version = new ArtifactoryHome(new NullLog()).getRunningVersionDetails();
-            usage.append(", version ").append(version.getVersionName());
-            usage.append(" (rev. ").append(version.getRevision()).append(")");
-        } catch (Exception e) {
-            System.out.println("Error reading properties file. " +
-                    "Disabling version number and revision properties.");
-        }
+        // TODO: Add printing version of the CLI
         usage.append(".\n");
         usage.append("Usage: artadmin <command> [arg] [options]\n");
         usage.append("Type 'artadmin help <command>' for help on a specific command.\n\n");
@@ -110,11 +101,5 @@ public class HelpCommand extends BaseCommand {
         }
 
         return true;
-    }
-
-    public static class NullLog implements ArtifactoryHome.SimpleLog {
-        public void log(String message) {
-            // ignore
-        }
     }
 }

@@ -18,25 +18,18 @@
 
 package org.artifactory.cli.test;
 
-import com.thoughtworks.xstream.XStream;
 import org.apache.commons.io.FileUtils;
-import org.artifactory.api.security.SecurityInfo;
-import org.artifactory.api.security.UserInfo;
-import org.artifactory.api.xstream.XStreamFactory;
 import org.artifactory.cli.main.ArtAdmin;
 import org.artifactory.cli.main.CliOption;
-import org.artifactory.descriptor.backup.BackupDescriptor;
-import org.artifactory.descriptor.config.CentralConfigDescriptor;
-import org.artifactory.descriptor.reader.CentralConfigReader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
+
+import static org.testng.Assert.assertTrue;
 
 /**
  * A test class for the renewed CLI
@@ -218,8 +211,8 @@ public class TestNewCli {
         });
         cleanOptions();
         Assert.assertNotNull(file, "Configuration file must be created.");
-        Assert.assertTrue(file.exists(), "Configuration file must exist.");
-        Assert.assertTrue(file.length() > 0, "Configuration file cannot be empty.");
+        assertTrue(file.exists(), "Configuration file must exist.");
+        assertTrue(file.length() > 0, "Configuration file cannot be empty.");
         return file;
     }
 
@@ -227,8 +220,8 @@ public class TestNewCli {
         URL templateURL = TestNewCli.class.getResource("/cli/" + fileName + ".xml");
         File templateFile = new File(templateURL.getFile());
         Assert.assertNotNull(templateFile);
-        Assert.assertTrue(templateFile.exists());
-        Assert.assertTrue(templateFile.length() > 0);
+        assertTrue(templateFile.exists());
+        assertTrue(templateFile.length() > 0);
         ArtAdmin.main(new String[]{
                 command,
                 "--url", TestCli.API_ROOT,
@@ -240,33 +233,15 @@ public class TestNewCli {
     }
 
     private void testSecurityFile(File tempFile) throws IOException {
-        XStream xStream = XStreamFactory.create(SecurityInfo.class);
-        FileInputStream inputStream = new FileInputStream(tempFile);
-        SecurityInfo securityInfo = (SecurityInfo) xStream.fromXML(inputStream);
-        inputStream.close();
-        List<UserInfo> users = securityInfo.getUsers();
-        boolean foundCLIUser = false;
-        for (UserInfo user : users) {
-            if ("clitest".equals(user.getUsername())) {
-                foundCLIUser = true;
-            }
-        }
-
-        Assert.assertTrue(foundCLIUser);
+        String secData = FileUtils.readFileToString(tempFile);
+        // TODO: Add more asserts
+        assertTrue(secData.contains("clitest"));
     }
 
-    private void testConfigurationFile(File tempFile) {
-        CentralConfigDescriptor centralConfigDescriptor =
-                new CentralConfigReader().read(tempFile);
-        List<BackupDescriptor> backups = centralConfigDescriptor.getBackups();
-        boolean foundCLIBackup = false;
-        for (BackupDescriptor backup : backups) {
-            if ("clibackup".equals(backup.getKey())) {
-                foundCLIBackup = true;
-            }
-        }
-
-        Assert.assertTrue(foundCLIBackup);
+    private void testConfigurationFile(File tempFile) throws IOException {
+        String configData = FileUtils.readFileToString(tempFile);
+        // TODO: Add more asserts
+        assertTrue(configData.contains("clibackup"));
     }
 
     private static void cleanOptions() {

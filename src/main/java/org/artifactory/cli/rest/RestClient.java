@@ -18,7 +18,6 @@
 
 package org.artifactory.cli.rest;
 
-import com.thoughtworks.xstream.XStream;
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.Header;
@@ -38,13 +37,8 @@ import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.io.output.TeeOutputStream;
-import org.artifactory.api.rest.constant.ImportRestConstants;
-import org.artifactory.api.rest.constant.SystemRestConstants;
-import org.artifactory.api.xstream.XStreamFactory;
-import org.artifactory.log.LoggerFactory;
-import org.artifactory.util.PathUtils;
-import org.artifactory.util.RemoteCommandException;
-import org.slf4j.Logger;
+import org.artifactory.cli.common.RemoteCommandException;
+import org.artifactory.cli.main.CliLog;
 
 import javax.net.ssl.SSLException;
 import java.io.BufferedInputStream;
@@ -68,48 +62,20 @@ import java.net.UnknownHostException;
  * @author Noam Tenne
  */
 public abstract class RestClient {
-    private static final Logger log = LoggerFactory.getLogger(RestClient.class);
-
     //TODO: [by yl] Use com.sun.jersey.api.client.WebResource instead of commons-httpclient
 
     /**
      * URL for Rest API
      */
-    public static final String SYSTEM_URL = SystemRestConstants.PATH_ROOT;
-    public static final String CONFIG_URL = SYSTEM_URL + "/" + SystemRestConstants.PATH_CONFIGURATION;
-    public static final String EXPORT_URL = SYSTEM_URL + "/" + SystemRestConstants.PATH_EXPORT;
-    public static final String IMPORT_URL = ImportRestConstants.PATH_ROOT + "/" + ImportRestConstants.SYSTEM_PATH;
-    public static final String SECURITY_URL = SYSTEM_URL + "/" + SystemRestConstants.PATH_SECURITY;
-    public static final String COMPRESS_URL = SYSTEM_URL + "/" + SystemRestConstants.PATH_STORAGE + "/" +
-            SystemRestConstants.PATH_STORAGE_COMPRESS;
-    public static final String REPOSITORIES_URL = SystemRestConstants.PATH_REPOSITORIES;
+    public static final String SYSTEM_URL = "system";
+    public static final String CONFIG_URL = SYSTEM_URL + "/configuration";
+    public static final String EXPORT_URL = SYSTEM_URL + "/export";
+    public static final String IMPORT_URL = "import/system";
+    public static final String SECURITY_URL = SYSTEM_URL + "/security";
+    public static final String COMPRESS_URL = SYSTEM_URL + "/storage/compress";
 
     private RestClient() {
         // utility class
-    }
-
-    /**
-     * Get method with default settings
-     *
-     * @param uri             Target URL
-     * @param xstreamObjClass Expected class of returned object
-     * @param timeout         Request timeout
-     * @param credentials     For authentication
-     * @param <T>             The type of class to be returned
-     * @return Request object
-     * @throws Exception
-     */
-    @SuppressWarnings({"unchecked"})
-    public static <T> T get(String uri, Class<T> xstreamObjClass, int timeout, Credentials credentials)
-            throws IOException {
-        if (xstreamObjClass != null) {
-            byte[] bytes = get(uri, 200, "application/xml", false, timeout, credentials);
-            XStream xStream = XStreamFactory.create(xstreamObjClass);
-            return (T) xStream.fromXML(new ByteArrayInputStream(bytes));
-        } else {
-            get(uri, 200, null, true, timeout, credentials);
-            return null;
-        }
     }
 
     /**
@@ -122,7 +88,8 @@ public abstract class RestClient {
      * @param timeout            Request timeout
      * @param credentials        For authentication
      * @return byte[] - Response stream
-     * @throws Exception
+     * @throws IOException
+     * @throws RemoteCommandException
      */
     public static byte[] get(String uri, int expectedStatus, String expectedResultType, boolean printStream,
             int timeout, Credentials credentials) throws IOException {
@@ -219,39 +186,6 @@ public abstract class RestClient {
         PutMethod method = new PutMethod(uri);
         method.setRequestEntity(requestEntity);
         return executeMethod(uri, method, expectedStatus, expectedResultType, timeout, credentials, printStream);
-    }
-
-    /**
-     * Post method with default settings
-     *
-     * @param uri         Target URL
-     * @param inObj       Object to send
-     * @param outObjClass Class of expected object from response
-     * @param timeout     Request timeout
-     * @param credentials For authentication
-     * @param <I>         Type of class to send
-     * @param <O>         Type of class to be returned
-     * @return Response object
-     * @throws Exception
-     */
-    @SuppressWarnings({"unchecked"})
-    public static <I, O> O post(String uri, I inObj, Class<O> outObjClass, int timeout, Credentials credentials)
-            throws IOException {
-        XStream xStream = XStreamFactory.create();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        if (inObj != null) {
-            xStream.processAnnotations(inObj.getClass());
-            xStream.toXML(inObj, bos);
-        }
-        if (outObjClass != null) {
-            xStream.processAnnotations(outObjClass);
-            byte[] bytes = post(uri, bos.toByteArray(), "application/xml", 200, "application/xml", false, timeout,
-                    credentials);
-            return (O) xStream.fromXML(new ByteArrayInputStream(bytes));
-        } else {
-            post(uri, bos.toByteArray(), "application/xml", 200, null, true, timeout, credentials);
-            return null;
-        }
     }
 
     /**
@@ -381,8 +315,8 @@ public abstract class RestClient {
             }
             return baos.toByteArray();
         } catch (SocketTimeoutException e) {
-            log.error("Communication with the server has timed out: " + e.getMessage());
-            log.error("ATTENTION: The command on the server may still be running!");
+            CliLog.error("Communication with the server has timed out: " + e.getMessage());
+            CliLog.error("ATTENTION: The command on the server may still be running!");
             String url = method.getURI().toString();
             int apiPos = url.indexOf("/api");
             String logsUrl;
@@ -391,7 +325,7 @@ public abstract class RestClient {
             } else {
                 logsUrl = "http://" + method.getURI().getHost() + "/artifactory/webapp/systemlogs.html";
             }
-            log.error("Please check the server logs " + logsUrl + " before re-running the command.");
+            CliLog.error("Please check the server logs " + logsUrl + " before re-running the command.");
             return null;
         }
     }
@@ -404,7 +338,8 @@ public abstract class RestClient {
      * @param contentType  Actual response media type
      */
     private static void checkContentType(String uri, String expectedType, String contentType) {
-        if (!PathUtils.hasText(expectedType)) {
+        if (expectedType == null || expectedType.trim().length() == 0) {
+            // No type, nothing to check
             return;
         }
         if (!contentType.contains(expectedType)) {

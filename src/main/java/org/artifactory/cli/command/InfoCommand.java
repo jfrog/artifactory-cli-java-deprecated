@@ -44,7 +44,7 @@ public class InfoCommand extends UrlBasedCommand implements Command {
      */
     public int execute() throws Exception {
         String systemUri = getUrl() + RestClient.SYSTEM_URL;
-        get(systemUri, null);
+        get(systemUri, 200, null, true);
         return 0;
     }
 
