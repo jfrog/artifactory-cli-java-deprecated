@@ -58,11 +58,11 @@ public class ImportCommand extends UrlBasedCommand implements Command {
             importFrom = new File(importFrom.getCanonicalPath());
         }
         StringBuilder jsonPayload = new StringBuilder("{");
-        jsonPayload.append("\"importPath\"=\"").append(importFrom.getPath()).append("\"\n");
-        jsonPayload.append("\"includeMetadata\"=").append(!CliOption.noMetadata.isSet()).append("\n");
-        jsonPayload.append("\"verbose\"=").append(CliOption.verbose.isSet()).append("\n");
-        jsonPayload.append("\"failOnError\"=").append(CliOption.failOnError.isSet()).append("\n");
-        jsonPayload.append("\"failIfEmpty\"=").append(CliOption.failIfEmpty.isSet()).append("\n");
+        jsonPayload.append("\"importPath\" : \"").append(importFrom.getPath()).append("\",\n");
+        jsonPayload.append("\"includeMetadata\" : ").append(!CliOption.noMetadata.isSet()).append(",\n");
+        jsonPayload.append("\"verbose\" : ").append(CliOption.verbose.isSet()).append(",\n");
+        jsonPayload.append("\"failOnError\" : ").append(CliOption.failOnError.isSet()).append(",\n");
+        jsonPayload.append("\"failIfEmpty\" : ").append(CliOption.failIfEmpty.isSet()).append("\n");
         jsonPayload.append("}");
 
         CliLog.info("Sending import request to server from path: " + importFrom.getPath());

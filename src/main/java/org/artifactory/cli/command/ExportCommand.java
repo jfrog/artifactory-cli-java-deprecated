@@ -64,16 +64,16 @@ public class ExportCommand extends UrlBasedCommand implements Command {
             exportTo = new File(exportTo.getCanonicalPath());
         }
         StringBuilder jsonPayload = new StringBuilder("{");
-        jsonPayload.append("\"exportPath\"=\"").append(exportTo.getPath()).append("\"\n");
-        jsonPayload.append("\"includeMetadata\"=").append(!CliOption.noMetadata.isSet()).append("\n");
-        jsonPayload.append("\"createArchive\"=").append(CliOption.createArchive.isSet()).append("\n");
-        jsonPayload.append("\"bypassFiltering\"=").append(CliOption.bypassFiltering.isSet()).append("\n");
-        jsonPayload.append("\"verbose\"=").append(CliOption.verbose.isSet()).append("\n");
-        jsonPayload.append("\"failOnError\"=").append(CliOption.failOnError.isSet()).append("\n");
-        jsonPayload.append("\"failIfEmpty\"=").append(CliOption.failIfEmpty.isSet()).append("\n");
-        jsonPayload.append("\"m2\"=").append(CliOption.m2.isSet()).append("\n");
-        jsonPayload.append("\"incremental\"=").append(CliOption.incremental.isSet()).append("\n");
-        jsonPayload.append("\"excludeContent\"=").append(CliOption.excludeContent.isSet()).append("\n");
+        jsonPayload.append("\"exportPath\" : \"").append(exportTo.getPath()).append("\",\n");
+        jsonPayload.append("\"includeMetadata\" : ").append(!CliOption.noMetadata.isSet()).append(",\n");
+        jsonPayload.append("\"createArchive\" : ").append(CliOption.createArchive.isSet()).append(",\n");
+        jsonPayload.append("\"bypassFiltering\" : ").append(CliOption.bypassFiltering.isSet()).append(",\n");
+        jsonPayload.append("\"verbose\" : ").append(CliOption.verbose.isSet()).append(",\n");
+        jsonPayload.append("\"failOnError\" : ").append(CliOption.failOnError.isSet()).append(",\n");
+        jsonPayload.append("\"failIfEmpty\" : ").append(CliOption.failIfEmpty.isSet()).append(",\n");
+        jsonPayload.append("\"m2\" : ").append(CliOption.m2.isSet()).append(",\n");
+        jsonPayload.append("\"incremental\" : ").append(CliOption.incremental.isSet()).append(",\n");
+        jsonPayload.append("\"excludeContent\" : ").append(CliOption.excludeContent.isSet()).append("\n");
         jsonPayload.append("}");
 
         CliLog.info("Sending export request to server path: " + exportTo.getPath());

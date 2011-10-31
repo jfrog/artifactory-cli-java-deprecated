@@ -100,7 +100,7 @@ public class TestCli {
         cleanOptions();
         ArtAdmin.main(new String[]{
                 "export", exportTo.getAbsolutePath(),
-                "--server", "localhost:8080",
+                "--host", "localhost:8080",
                 "--username", "admin",
                 "--password", "password", "--m2"
         });
@@ -169,8 +169,8 @@ public class TestCli {
     public void testJfrogImport() throws Exception {
         cleanOptions();
         ArtAdmin.main(new String[]{
-                "import", "cli/src/test/backups/current",
-                "--server", "localhost:8080",
+                "import", "src/test/backups/current",
+                "--host", "localhost:8080",
                 "--username", "admin",
                 "--password", "password",
                 "--timeout", "3600"
@@ -186,8 +186,8 @@ public class TestCli {
         cleanOptions();
         ArtAdmin.main(new String[]{
                 "security",
-                "--update", "cli/src/test/resources/cli/simple_security.xml",
-                "--server", "localhost:8080",
+                "--update", "src/test/resources/cli/simple_security.xml",
+                "--host", "localhost:8080",
                 "--username", "admin",
                 "--password", "password"
         });
