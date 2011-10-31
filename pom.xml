@@ -26,6 +26,25 @@
     <packaging>jar</packaging>
     <name>Artifactory Command Line API</name>
 
+    <scm>
+        <connection>scm:git:git://github.com/JFrogDev/artifactory-cli.git</connection>
+        <developerConnection>scm:git:git@github.com:JFrogDev/artifactory-cli.git</developerConnection>
+        <url>https://github.com/JFrogDev/artifactory-cli</url>
+    </scm>
+
+    <issueManagement>
+        <system>jira</system>
+        <url>http://issues.jfrog.org/jira/browse/RTFACT</url>
+    </issueManagement>
+
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License, Version 3</name>
+            <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <dependencies>
         <dependency>
             <groupId>commons-io</groupId>
