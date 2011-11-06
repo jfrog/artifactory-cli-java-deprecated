@@ -19,6 +19,7 @@
 package org.artifactory.cli.command;
 
 import org.artifactory.cli.common.Command;
+import org.artifactory.cli.common.Param;
 import org.artifactory.cli.common.UrlBasedCommand;
 import org.artifactory.cli.main.CliLog;
 import org.artifactory.cli.main.CliOption;
@@ -53,19 +54,17 @@ public class ImportCommand extends UrlBasedCommand implements Command {
      */
     public int execute() throws Exception {
         String systemUri = getUrl() + RestClient.IMPORT_URL;
-        File importFrom = new File(CommandDefinition.imp.getCommandParam().getValue());
-        if (importFrom.exists()) {
-            importFrom = new File(importFrom.getCanonicalPath());
-        }
+        Param commandParam = CommandDefinition.imp.getCommandParam();
+        String pathValue = extractPathValue(commandParam);
         StringBuilder jsonPayload = new StringBuilder("{");
-        jsonPayload.append("\"importPath\" : \"").append(importFrom.getPath()).append("\",\n");
+        jsonPayload.append("\"importPath\" : \"").append(pathValue).append("\",\n");
         jsonPayload.append("\"includeMetadata\" : ").append(!CliOption.noMetadata.isSet()).append(",\n");
         jsonPayload.append("\"verbose\" : ").append(CliOption.verbose.isSet()).append(",\n");
         jsonPayload.append("\"failOnError\" : ").append(CliOption.failOnError.isSet()).append(",\n");
         jsonPayload.append("\"failIfEmpty\" : ").append(CliOption.failIfEmpty.isSet()).append("\n");
         jsonPayload.append("}");
 
-        CliLog.info("Sending import request to server from path: " + importFrom.getPath());
+        CliLog.info("Sending import request to server from path: " + pathValue);
 
         post(systemUri, jsonPayload.toString().getBytes("UTF-8"),
                 "application/vnd.org.jfrog.artifactory.system.ImportSettings+json", 200, null, true);

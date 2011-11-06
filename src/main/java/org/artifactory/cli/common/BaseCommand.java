@@ -21,6 +21,9 @@ package org.artifactory.cli.common;
 import org.artifactory.cli.main.CliOption;
 import org.artifactory.cli.main.CommandDefinition;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
  * The main base class for CLI commands
  *
@@ -53,6 +56,14 @@ public abstract class BaseCommand implements Command {
         }
         this.commandDefinition = commandDefinition;
         this.optionalParameters = optionalParameters;
+    }
+
+    public static String extractPathValue(Param param) throws IOException {
+        File exportTo = new File(param.getValue());
+        if (exportTo.exists()) {
+            exportTo = new File(exportTo.getCanonicalPath());
+        }
+        return exportTo.getPath().replace('\\', '/');
     }
 
     /**

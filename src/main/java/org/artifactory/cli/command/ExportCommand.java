@@ -19,13 +19,12 @@
 package org.artifactory.cli.command;
 
 import org.artifactory.cli.common.Command;
+import org.artifactory.cli.common.Param;
 import org.artifactory.cli.common.UrlBasedCommand;
 import org.artifactory.cli.main.CliLog;
 import org.artifactory.cli.main.CliOption;
 import org.artifactory.cli.main.CommandDefinition;
 import org.artifactory.cli.rest.RestClient;
-
-import java.io.File;
 
 /**
  * The "Export" command class
@@ -59,12 +58,10 @@ public class ExportCommand extends UrlBasedCommand implements Command {
      */
     public int execute() throws Exception {
         String systemUri = getUrl() + RestClient.EXPORT_URL;
-        File exportTo = new File(CommandDefinition.export.getCommandParam().getValue());
-        if (exportTo.exists()) {
-            exportTo = new File(exportTo.getCanonicalPath());
-        }
+        Param commandParam = CommandDefinition.export.getCommandParam();
+        String pathValue = extractPathValue(commandParam);
         StringBuilder jsonPayload = new StringBuilder("{");
-        jsonPayload.append("\"exportPath\" : \"").append(exportTo.getPath()).append("\",\n");
+        jsonPayload.append("\"exportPath\" : \"").append(pathValue).append("\",\n");
         jsonPayload.append("\"includeMetadata\" : ").append(!CliOption.noMetadata.isSet()).append(",\n");
         jsonPayload.append("\"createArchive\" : ").append(CliOption.createArchive.isSet()).append(",\n");
         jsonPayload.append("\"bypassFiltering\" : ").append(CliOption.bypassFiltering.isSet()).append(",\n");
@@ -76,7 +73,7 @@ public class ExportCommand extends UrlBasedCommand implements Command {
         jsonPayload.append("\"excludeContent\" : ").append(CliOption.excludeContent.isSet()).append("\n");
         jsonPayload.append("}");
 
-        CliLog.info("Sending export request to server path: " + exportTo.getPath());
+        CliLog.info("Sending export request to server path: " + pathValue);
 
         // TODO: The repo list
         post(systemUri, jsonPayload.toString().getBytes("UTF-8"),
