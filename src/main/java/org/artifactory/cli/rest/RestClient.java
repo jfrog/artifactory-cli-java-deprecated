@@ -44,7 +44,7 @@ public abstract class RestClient {
      */
     public static final String SYSTEM_URL = "system";
     public static final String CONFIG_URL = SYSTEM_URL + "/configuration";
-    public static final String EXPORT_URL = SYSTEM_URL + "/export";
+    public static final String EXPORT_URL = "export/system";
     public static final String IMPORT_URL = "import/system";
     public static final String SECURITY_URL = SYSTEM_URL + "/security";
     public static final String COMPRESS_URL = SYSTEM_URL + "/storage/compress";
