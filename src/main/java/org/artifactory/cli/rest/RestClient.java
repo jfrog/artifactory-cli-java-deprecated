@@ -18,22 +18,9 @@
 
 package org.artifactory.cli.rest;
 
-import org.apache.commons.httpclient.ConnectTimeoutException;
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnectionManager;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.SimpleHttpConnectionManager;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -41,20 +28,8 @@ import org.artifactory.cli.common.RemoteCommandException;
 import org.artifactory.cli.main.CliLog;
 
 import javax.net.ssl.SSLException;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.ConnectException;
-import java.net.MalformedURLException;
-import java.net.NoRouteToHostException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.io.*;
+import java.net.*;
 
 /**
  * Provides a comfortable API to the different rest commands
@@ -92,7 +67,7 @@ public abstract class RestClient {
      * @throws RemoteCommandException
      */
     public static byte[] get(String uri, int expectedStatus, String expectedResultType, boolean printStream,
-            int timeout, Credentials credentials) throws IOException {
+                             int timeout, Credentials credentials) throws IOException {
         GetMethod method;
         try {
             method = new GetMethod(uri);
@@ -117,7 +92,7 @@ public abstract class RestClient {
      * @throws Exception
      */
     public static byte[] get(String uri, int expectedStatus, String expectedResultType, boolean printStream,
-            int timeout, Credentials credentials, GetMethod method) throws IOException {
+                             int timeout, Credentials credentials, GetMethod method) throws IOException {
         return executeMethod(uri, method, expectedStatus, expectedResultType, timeout, credentials, printStream);
     }
 
@@ -147,7 +122,7 @@ public abstract class RestClient {
     }
 
     public static byte[] delete(String uri, int expectedStatus, String expectedResultType, boolean printStream,
-            int timeout, Credentials credentials) throws IOException {
+                                int timeout, Credentials credentials) throws IOException {
         DeleteMethod method;
         try {
             method = new DeleteMethod(uri);
@@ -176,13 +151,13 @@ public abstract class RestClient {
     }
 
     public static byte[] put(String uri, InputStream input, final String inputType, int expectedStatus,
-            String expectedResultType, boolean printStream, int timeout, Credentials credentials) throws IOException {
+                             String expectedResultType, boolean printStream, int timeout, Credentials credentials) throws IOException {
         return put(uri, new InputStreamRequestEntity(input, inputType), expectedStatus, expectedResultType,
                 printStream, timeout, credentials);
     }
 
     public static byte[] put(String uri, RequestEntity requestEntity, int expectedStatus,
-            String expectedResultType, boolean printStream, int timeout, Credentials credentials) throws IOException {
+                             String expectedResultType, boolean printStream, int timeout, Credentials credentials) throws IOException {
         PutMethod method = new PutMethod(uri);
         method.setRequestEntity(requestEntity);
         return executeMethod(uri, method, expectedStatus, expectedResultType, timeout, credentials, printStream);
@@ -203,18 +178,23 @@ public abstract class RestClient {
      * @throws Exception
      */
     public static byte[] post(String uri, final byte[] data, final String inputType, int expectedStatus,
-            String expectedResultType, boolean printStream, int timeout, Credentials credentials) throws IOException {
+                              String expectedResultType, boolean printStream, int timeout, Credentials credentials) throws IOException {
         RequestEntity requestEntity = new RequestEntity() {
             public boolean isRepeatable() {
                 return true;
             }
 
             public void writeRequest(OutputStream out) throws IOException {
-                out.write(data);
+                if (data != null) {
+                    out.write(data);
+                }
             }
 
             public long getContentLength() {
-                return data.length;
+                if (data != null) {
+                    return data.length;
+                }
+                return 0;
             }
 
             public String getContentType() {
@@ -238,7 +218,7 @@ public abstract class RestClient {
      * @throws Exception
      */
     public static byte[] post(String uri, RequestEntity requestEntity, int expectedStatus,
-            String expectedResultType, boolean printStream, int timeout, Credentials credentials) throws IOException {
+                              String expectedResultType, boolean printStream, int timeout, Credentials credentials) throws IOException {
         PostMethod method = new PostMethod(uri);
         method.setRequestEntity(requestEntity);
         return executeMethod(uri, method, expectedStatus, expectedResultType, timeout, credentials, printStream);
@@ -256,7 +236,7 @@ public abstract class RestClient {
      * @throws Exception
      */
     private static byte[] executeMethod(String uri, HttpMethod method, int expectedStatus, String expectedResultType,
-            int timeout, Credentials credentials, boolean printStream) throws IOException {
+                                        int timeout, Credentials credentials, boolean printStream) throws IOException {
         try {
             getHttpClient(uri, timeout, credentials).executeMethod(method);
             checkStatus(uri, expectedStatus, method);

@@ -193,6 +193,21 @@ public class TestCli {
         });
     }
 
+    @Test
+    public void testCompress() throws Exception {
+        cleanOptions();
+        ArtAdmin.main(new String[]{
+                "help", "compress"
+        });
+        cleanOptions();
+        ArtAdmin.main(new String[]{
+                "compress",
+                "--host", "localhost:8080",
+                "--username", "admin",
+                "--password", "password"
+        });
+    }
+
     private static void cleanOptions() {
         CliOption[] cliOptions = CliOption.values();
         for (CliOption option : cliOptions) {
