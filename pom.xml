@@ -20,7 +20,7 @@
 
     <groupId>org.jfrog.artifactory.client</groupId>
     <artifactId>artifactory-cli</artifactId>
-    <version>1.0</version>
+    <version>1.x-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     <name>Artifactory Command Line API</name>
